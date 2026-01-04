@@ -1,25 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+using PersonalPages.Models;
+using PersonalPages.Services;
 
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    [HttpPost("login")]
-    public IActionResult Login()
+    private readonly IAuthService _service;
+
+    public AuthController(IAuthService service)
     {
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes("PERSONAL_PAGES_SECRET_KEY"));
+        _service = service;
+    }
 
-        var token = new JwtSecurityToken(
-            signingCredentials:
-                new SigningCredentials(key, SecurityAlgorithms.HmacSha256));
-
-        return Ok(new
+    [HttpPost("register")]
+    public IActionResult Register(RegisterDto dto)
+    {
+        try
         {
-            token = new JwtSecurityTokenHandler().WriteToken(token)
-        });
+            _service.Register(dto);
+            return Ok(new { message = "User registered successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("login")]
+    public IActionResult Login(LoginDto dto)
+    {
+        try
+        {
+            var token = _service.Login(dto);
+            return Ok(new { token });
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(ex.Message);
+        }
     }
 }
