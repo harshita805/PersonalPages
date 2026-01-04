@@ -3,7 +3,7 @@ using PersonalPages.Models;
 
 namespace PersonalPages.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly IConfiguration _config;
 
