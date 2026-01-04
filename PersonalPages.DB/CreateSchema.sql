@@ -1,0 +1,28 @@
+CREATE DATABASE PersonalPages;
+GO
+USE PersonalPages;
+
+CREATE TABLE Users (
+  UserId INT IDENTITY PRIMARY KEY,
+  Email NVARCHAR(150) UNIQUE,
+  PasswordHash NVARCHAR(255),
+  CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE JournalEntries (
+  JournalId INT IDENTITY PRIMARY KEY,
+  UserId INT,
+  Content NVARCHAR(MAX),
+  Mood NVARCHAR(50),
+  IsPublic BIT,
+  CreatedAt DATETIME DEFAULT GETDATE(),
+  FOREIGN KEY (UserId) REFERENCES Users(UserId)
+);
+
+CREATE TABLE Comments (
+  CommentId INT IDENTITY PRIMARY KEY,
+  JournalId INT,
+  UserId INT,
+  CommentText NVARCHAR(500),
+  CreatedAt DATETIME DEFAULT GETDATE()
+);
