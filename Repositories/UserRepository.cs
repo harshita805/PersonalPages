@@ -3,7 +3,7 @@ using PersonalPages.Models;
 
 namespace PersonalPages.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository
     {
         private readonly IConfiguration _config;
 
@@ -18,43 +18,41 @@ namespace PersonalPages.Repositories
                 _config.GetConnectionString("DefaultConnection"));
         }
 
-        public bool UserExists(string email)
+        public User GetUserByEmail(string email)
         {
             using var con = GetConnection();
             var cmd = new SqlCommand(
-                "SELECT COUNT(*) FROM Users WHERE Email=@Email", con);
+                "SELECT FullName, Email, Gender, DateOfBirth FROM Users WHERE Email=@Email", con);
             cmd.Parameters.AddWithValue("@Email", email);
+
             con.Open();
-            return (int)cmd.ExecuteScalar() > 0;
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read()) return null;
+
+            return new User
+            {
+                FullName = reader["FullName"].ToString(),
+                Email = reader["Email"].ToString(),
+                Gender = reader["Gender"].ToString(),
+                DateOfBirth = Convert.ToDateTime(reader["DateOfBirth"])
+            };
         }
 
-        public void Register(User user)
+        public void UpdateUser(string email, UpdateUserDto dto)
         {
             using var con = GetConnection();
             var cmd = new SqlCommand(
-                @"INSERT INTO Users 
-                (FullName, Email, PasswordHash, Gender, DateOfBirth) 
-                VALUES 
-                (@FullName,@Email,@PasswordHash,@Gender,@DOB)", con);
+                @"UPDATE Users 
+          SET FullName=@FullName, Gender=@Gender, DateOfBirth=@DOB
+          WHERE Email=@Email", con);
 
-            cmd.Parameters.AddWithValue("@FullName", user.FullName);
-            cmd.Parameters.AddWithValue("@Email", user.Email);
-            cmd.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
-            cmd.Parameters.AddWithValue("@Gender", user.Gender);
-            cmd.Parameters.AddWithValue("@DOB", user.DateOfBirth);
+            cmd.Parameters.AddWithValue("@FullName", dto.FullName);
+            cmd.Parameters.AddWithValue("@Gender", dto.Gender);
+            cmd.Parameters.AddWithValue("@DOB", dto.DateOfBirth);
+            cmd.Parameters.AddWithValue("@Email", email);
 
             con.Open();
             cmd.ExecuteNonQuery();
-        }
-
-        public string GetPasswordHash(string email)
-        {
-            using var con = GetConnection();
-            var cmd = new SqlCommand(
-                "SELECT PasswordHash FROM Users WHERE Email=@Email", con);
-            cmd.Parameters.AddWithValue("@Email", email);
-            con.Open();
-            return cmd.ExecuteScalar()?.ToString();
         }
     }
 }

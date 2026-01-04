@@ -4,8 +4,7 @@ namespace PersonalPages.Repositories
 {
     public interface IUserRepository
     {
-        bool UserExists(string email);
-        void Register(User user);
-        string GetPasswordHash(string email);
+        User GetUserByEmail(string email);
+        void UpdateUser(string email, UpdateUserDto dto);
     }
 }

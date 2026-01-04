@@ -9,10 +9,10 @@ namespace PersonalPages.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IUserRepository _repo;
+        private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
 
-        public AuthService(IUserRepository repo, IConfiguration config)
+        public AuthService(IAuthRepository repo, IConfiguration config)
         {
             _repo = repo;
             _config = config;
