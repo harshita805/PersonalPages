@@ -12,11 +12,13 @@ namespace PersonalPages.Services
     {
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
+        private readonly IUserRepository _userRepo;
 
-        public AuthService(IAuthRepository repo, IConfiguration config)
+        public AuthService(IAuthRepository repo, IConfiguration config, IUserRepository userRepository)
         {
             _repo = repo;
             _config = config;
+            _userRepo = userRepository;
         }
 
         public void Register(RegisterDto dto)
@@ -38,12 +40,13 @@ namespace PersonalPages.Services
 
         public string Login(LoginDto dto)
         {
-            var hash = _repo.GetPasswordHash(dto.Email);
+            var user = _userRepo.GetUserByEmail(dto.Email);
 
-            if (hash == null || Hash(dto.Password) != hash)
+            if (user == null || Hash(dto.Password) != user.PasswordHash)
                 throw new Exception("Invalid credentials");
 
-            return GenerateJwt(dto.Email);
+            // ✅ Pass FULL user object
+            return GenerateJwtToken(user);
         }
 
         private static string Hash(string input)
@@ -53,12 +56,12 @@ namespace PersonalPages.Services
                 sha.ComputeHash(Encoding.UTF8.GetBytes(input)));
         }
 
-        private string GenerateJwt(string email)
+        private string GenerateJwtToken(User user)
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, email),   // ✅ MAIN CLAIM
-                new Claim(ClaimTypes.Email, email)   // (Optional but good)
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim("UserId", user.UserId.ToString())   // ✅ NOW POSSIBLE
             };
 
             var key = new SymmetricSecurityKey(
@@ -77,5 +80,6 @@ namespace PersonalPages.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }

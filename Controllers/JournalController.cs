@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalPages.Models;
-using System.Security.Claims;
 
 [Authorize]
 [ApiController]
@@ -15,24 +14,24 @@ public class JournalController : ControllerBase
         _service = service;
     }
 
-    // ✍️ SAVE JOURNAL
+    // ✅ SAVE JOURNAL
     [HttpPost]
     public IActionResult Create(CreateJournalDto dto)
     {
-        var email = User.FindFirstValue(ClaimTypes.Name);
-        _service.CreateJournal(email, dto);
+        int userId = int.Parse(User.FindFirst("UserId").Value);
+        _service.CreateJournal(userId, dto);
         return Ok(new { message = "Journal saved successfully" });
     }
 
-    // 📘 MY JOURNALS
+    // ✅ FETCH MY JOURNALS
     [HttpGet("my")]
     public IActionResult MyJournals()
     {
-        var email = User.FindFirstValue(ClaimTypes.Name);
-        return Ok(_service.GetMyJournals(email));
+        int userId = int.Parse(User.FindFirst("UserId").Value);
+        return Ok(_service.GetMyJournals(userId));
     }
 
-    // 🌍 PUBLIC JOURNALS
+    // ✅ FETCH PUBLIC JOURNALS
     [AllowAnonymous]
     [HttpGet("public")]
     public IActionResult PublicJournals()

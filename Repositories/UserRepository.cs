@@ -22,21 +22,25 @@ namespace PersonalPages.Repositories
         {
             using var con = GetConnection();
             var cmd = new SqlCommand(
-                "SELECT FullName, Email, Gender, DateOfBirth FROM Users WHERE Email=@Email", con);
+                "SELECT UserId, FullName, Email, PasswordHash FROM Users WHERE Email=@Email", con);
+
             cmd.Parameters.AddWithValue("@Email", email);
 
             con.Open();
             using var reader = cmd.ExecuteReader();
-            if (!reader.Read()) return null;
+
+            if (!reader.Read())
+                return null;
 
             return new User
             {
+                UserId = (int)reader["UserId"],     // ✅ NOW AVAILABLE
                 FullName = reader["FullName"].ToString(),
                 Email = reader["Email"].ToString(),
-                Gender = reader["Gender"].ToString(),
-                DateOfBirth = Convert.ToDateTime(reader["DateOfBirth"])
+                PasswordHash = reader["PasswordHash"].ToString()
             };
         }
+
 
         public void UpdateUser(string email, UpdateUserDto dto)
         {

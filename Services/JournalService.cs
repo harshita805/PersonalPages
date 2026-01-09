@@ -9,26 +9,17 @@ public class JournalService : IJournalService
         _repo = repo;
     }
 
-    public void CreateJournal(string email, CreateJournalDto dto)
+    public void CreateJournal(int userId, CreateJournalDto dto)
     {
-        var journal = new Journal
-        {
-            UserEmail = email,
-            Title = dto.Title,
-            Content = dto.Content,
-            Mood = dto.Mood,
-            IsPublic = dto.IsPublic
-        };
-
-        _repo.AddJournal(journal);
+        _repo.AddJournal(userId, dto);
     }
 
-    public List<Journal> GetMyJournals(string email)
+    public List<JournalWithUserDto> GetMyJournals(int userId)
     {
-        return _repo.GetMyJournals(email);
+        return _repo.GetMyJournals(userId);
     }
 
-    public List<Journal> GetPublicJournals()
+    public List<JournalWithUserDto> GetPublicJournals()
     {
         return _repo.GetPublicJournals();
     }
