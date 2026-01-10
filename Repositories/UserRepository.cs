@@ -22,7 +22,7 @@ namespace PersonalPages.Repositories
         {
             using var con = GetConnection();
             var cmd = new SqlCommand(
-                "SELECT UserId, FullName, Email, PasswordHash FROM Users WHERE Email=@Email", con);
+                "SELECT UserId, FullName, Email, PasswordHash, Gender, DateOfBirth FROM Users WHERE Email=@Email", con);
 
             cmd.Parameters.AddWithValue("@Email", email);
 
@@ -37,7 +37,9 @@ namespace PersonalPages.Repositories
                 UserId = (int)reader["UserId"],     // ✅ NOW AVAILABLE
                 FullName = reader["FullName"].ToString(),
                 Email = reader["Email"].ToString(),
-                PasswordHash = reader["PasswordHash"].ToString()
+                PasswordHash = reader["PasswordHash"].ToString(),
+                Gender = reader["Gender"].ToString(),
+                DateOfBirth = (DateTime)reader["DateOfBirth"]
             };
         }
 
