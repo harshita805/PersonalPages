@@ -6,6 +6,16 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if(builder.Environment.IsProduction())
+{
+    Console.WriteLine("In Production");
+    builder.Configuration.SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("/home/pi/codename399/personalpages/appsettings.json");
+}
+else
+{
+    Console.WriteLine("In Development");
+}
+
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
